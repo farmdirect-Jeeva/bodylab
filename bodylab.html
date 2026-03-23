@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BodyOS — Human Body Analyser</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&family=Martian+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f5f2eb;
+  --bg2:#ede9df;
+  --card:#ffffff;
+  --border:#ddd8cc;
+  --ink:#1a1814;
+  --muted:#7a7268;
+  --accent:#2d5a27;
+  --accent2:#c8502a;
+  --accent3:#1d3557;
+  --highlight:#e8f5e1;
+  --font-h:'Clash Display',sans-serif;
+  --font-b:'Cabinet Grotesk',sans-serif;
+  --font-m:'Martian Mono',monospace;
+}
+
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-b);
+  min-height:100vh;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(45,90,39,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(29,53,87,0.05) 0%, transparent 50%);
+}
+
+/* HEADER */
+.hero{
+  text-align:center;
+  padding:56px 20px 40px;
+  animation:fadeDown .7s ease both;
+}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent);color:#fff;
+  font-family:var(--font-m);font-size:.65rem;letter-spacing:.15em;
+  padding:5px 14px;border-radius:99px;margin-bottom:20px;
+  text-transform:uppercase;
+}
+.hero h1{
+  font-family:var(--font-h);
+  font-size:clamp(2.6rem,7vw,4.8rem);
+  font-weight:700;line-height:1;
+  letter-spacing:-.02em;
+  color:var(--ink);
+}
+.hero h1 span{color:var(--accent);}
+.hero p{
+  margin-top:12px;color:var(--muted);
+  font-size:1rem;font-weight:300;max-width:480px;margin-inline:auto;
+}
+
+/* FORM */
+.form-wrap{
+  max-width:700px;margin:0 auto 32px;padding:0 20px;
+  animation:fadeUp .7s .15s ease both;
+}
+.form-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:32px;
+  box-shadow:0 4px 30px rgba(0,0,0,.06);
+}
+.form-card h2{
+  font-family:var(--font-h);font-size:1.1rem;font-weight:600;
+  margin-bottom:24px;display:flex;align-items:center;gap:10px;
+}
+.form-card h2::before{
+  content:'';display:block;width:10px;height:10px;
+  border-radius:50%;background:var(--accent);
+}
+
+.form-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+}
+@media(max-width:560px){.form-grid{grid-template-columns:1fr;}}
+
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{
+  font-family:var(--font-m);font-size:.65rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+}
+.field input,.field select{
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:12px;padding:12px 14px;
+  font-family:var(--font-b);font-size:.95rem;color:var(--ink);
+  outline:none;transition:border-color .2s;appearance:none;
+}
+.field input:focus,.field select:focus{border-color:var(--accent);}
+
+.radio-group{display:flex;gap:10px;}
+.radio-btn{
+  flex:1;padding:11px;text-align:center;border-radius:12px;
+  border:1.5px solid var(--border);background:var(--bg);
+  cursor:pointer;font-size:.9rem;font-weight:500;
+  transition:all .2s;user-select:none;
+}
+.radio-btn.active{
+  background:var(--accent);color:#fff;border-color:var(--accent);
+}
+
+.analyze-btn{
+  width:100%;margin-top:20px;
+  background:var(--ink);color:#fff;
+  border:none;border-radius:14px;
+  padding:16px;font-family:var(--font-h);
+  font-size:1.05rem;font-weight:600;letter-spacing:.02em;
+  cursor:pointer;transition:transform .15s,opacity .15s;
+  position:relative;overflow:hidden;
+}
+.analyze-btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.08),transparent);
+}
+.analyze-btn:hover{opacity:.9;transform:translateY(-1px);}
+.analyze-btn:active{transform:translateY(0);}
+
+/* RESULTS */
+.results{
+  max-width:1080px;margin:0 auto 80px;padding:0 20px;
+  display:none;
+}
+.results.show{display:block;animation:fadeUp .6s ease both;}
+
+.results-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;flex-wrap:wrap;gap:12px;
+}
+.results-header h2{
+  font-family:var(--font-h);font-size:1.6rem;font-weight:700;
+}
+.score-pill{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:99px;padding:8px 20px 8px 8px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+}
+.score-circle{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-m);font-size:.75rem;font-weight:400;
+  color:#fff;background:var(--accent);
+}
+.score-label{font-size:.85rem;font-weight:500;}
+
+/* METRIC GRID */
+.metric-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;margin-bottom:20px;
+}
+@media(max-width:800px){.metric-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:500px){.metric-grid{grid-template-columns:1fr;}}
+
+.metric-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:22px;
+  box-shadow:0 2px 16px rgba(0,0,0,.04);
+  transition:transform .2s;
+}
+.metric-card:hover{transform:translateY(-3px);}
+
+.metric-icon{font-size:1.6rem;margin-bottom:10px;}
+.metric-name{
+  font-family:var(--font-m);font-size:.62rem;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px;
+}
+.metric-val{
+  font-family:var(--font-h);font-size:1.8rem;
+  font-weight:700;line-height:1;color:var(--ink);
+}
+.metric-unit{font-size:.85rem;font-weight:400;color:var(--muted);}
+.metric-sub{
+  margin-top:8px;font-size:.82rem;color:var(--muted);font-weight:300;
+}
+.metric-badge{
+  display:inline-block;margin-top:8px;
+  font-family:var(--font-m);font-size:.6rem;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 10px;border-radius:99px;
+}
+.badge-good{background:#e8f5e1;color:var(--accent);}
+.badge-warn{background:#fff3e0;color:#e65100;}
+.badge-info{background:#e8eaf6;color:var(--accent3);}
+.badge-ok{background:#f3e5f5;color:#6a1b9a;}
+
+/* BAR */
+.bar-wrap{margin-top:10px;}
+.bar-track{
+  height:5px;background:var(--bg2);border-radius:99px;overflow:hidden;
+}
+.bar-fill{
+  height:100%;border-radius:99px;
+  transition:width .8s cubic-bezier(.4,0,.2,1);
+  width:0;
+}
+
+/* VITAMINS TABLE */
+.wide-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:24px;
+  box-shadow:0 2px 16px rgba(0,0,0,.04);
+  margin-bottom:20px;
+}
+.wide-card h3{
+  font-family:var(--font-h);font-size:1rem;font-weight:600;
+  margin-bottom:18px;display:flex;align-items:center;gap:8px;
+}
+.wide-card h3 .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--accent2);display:inline-block;
+}
+
+.vit-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:12px;
+}
+.vit-item{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:14px;padding:14px;
+}
+.vit-name{
+  font-family:var(--font-m);font-size:.65rem;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px;
+}
+.vit-dose{font-weight:700;font-size:1rem;color:var(--ink);}
+.vit-role{font-size:.78rem;color:var(--muted);margin-top:4px;}
+
+/* ROUTINE */
+.routine-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:12px;
+}
+.routine-item{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:14px;padding:16px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.routine-time{
+  font-family:var(--font-m);font-size:.65rem;
+  color:var(--accent);font-weight:400;white-space:nowrap;
+  margin-top:2px;
+}
+.routine-text{font-size:.88rem;font-weight:500;line-height:1.4;}
+.routine-sub{font-size:.78rem;color:var(--muted);margin-top:3px;}
+
+/* TIPS */
+.tips-list{display:flex;flex-direction:column;gap:10px;}
+.tip-item{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:14px 16px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:14px;
+}
+.tip-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.tip-text{font-size:.9rem;line-height:1.5;}
+.tip-text strong{color:var(--accent);font-weight:600;}
+
+/* SELF CARE SECTION */
+.care-list{display:flex;flex-direction:column;gap:8px;}
+.care-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:12px;cursor:pointer;
+  transition:border-color .2s,background .2s;user-select:none;
+}
+.care-item:hover{background:var(--highlight);}
+.care-item.done{border-color:var(--accent);background:var(--highlight);}
+.care-item.done .care-text{text-decoration:line-through;color:var(--muted);}
+.care-check{
+  width:22px;height:22px;border-radius:50%;
+  border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;flex-shrink:0;
+  transition:background .2s,border-color .2s;
+}
+.care-item.done .care-check{background:var(--accent);border-color:var(--accent);color:#fff;}
+.care-emoji{font-size:1rem;}
+.care-text{font-size:.88rem;font-weight:500;flex:1;}
+
+.progress-wrap{margin-top:16px;}
+.progress-label{
+  display:flex;justify-content:space-between;
+  font-family:var(--font-m);font-size:.65rem;color:var(--muted);margin-bottom:6px;
+}
+.progress-track{height:5px;background:var(--bg2);border-radius:99px;overflow:hidden;}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--accent),#5a9a50);
+  border-radius:99px;transition:width .5s ease;width:0%;
+}
+.mood-msg{
+  font-family:'Clash Display',sans-serif;font-style:normal;
+  font-size:.9rem;color:var(--accent);margin-top:10px;text-align:center;min-height:1.3em;
+}
+
+.add-row{display:flex;gap:8px;margin-top:12px;}
+.add-input{
+  flex:1;background:var(--bg);border:1.5px solid var(--border);
+  border-radius:10px;padding:10px 14px;
+  font-family:var(--font-b);font-size:.85rem;color:var(--ink);outline:none;
+  transition:border-color .2s;
+}
+.add-input:focus{border-color:var(--accent);}
+.add-btn{
+  background:var(--accent);color:#fff;border:none;
+  border-radius:10px;padding:10px 16px;
+  font-family:var(--font-h);font-weight:600;font-size:1.1rem;
+  cursor:pointer;transition:opacity .15s;
+}
+.add-btn:hover{opacity:.85;}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+@media(max-width:700px){.two-col{grid-template-columns:1fr;}}
+
+/* FOOD TABS */
+.tab-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.tab-btn{
+  padding:7px 16px;border-radius:99px;border:1.5px solid var(--border);
+  background:var(--bg);font-family:var(--font-b);font-size:.85rem;font-weight:500;
+  cursor:pointer;transition:all .2s;color:var(--ink);
+}
+.tab-btn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* FOOD CARDS */
+.food-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;
+}
+.food-card{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:16px;padding:16px;text-align:center;
+  transition:transform .2s,box-shadow .2s;
+}
+.food-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.07);}
+.food-icon{font-size:2rem;margin-bottom:8px;}
+.food-name{font-weight:700;font-size:.9rem;color:var(--ink);}
+.food-macro{
+  font-family:var(--font-m);font-size:.65rem;
+  color:var(--accent);margin-top:4px;letter-spacing:.05em;
+}
+.food-note{font-size:.75rem;color:var(--muted);margin-top:4px;line-height:1.4;}
+
+/* VIT SOURCE */
+.vit-src-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;
+}
+.vit-src-card{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:14px;padding:14px;
+}
+.vit-src-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.vit-src-name{font-weight:700;font-size:.9rem;}
+.vit-src-dose{font-family:var(--font-m);font-size:.62rem;color:var(--muted);}
+.vit-src-foods{font-size:.78rem;color:var(--muted);line-height:1.5;}
+.vit-src-foods strong{color:var(--ink);font-weight:600;}
+.vit-src-tip{
+  margin-top:6px;font-size:.75rem;
+  color:var(--accent2);font-style:italic;
+}
+
+/* MEAL PLAN */
+.meal-day{display:flex;flex-direction:column;gap:10px;}
+.meal-slot{
+  display:flex;gap:14px;align-items:flex-start;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:14px;padding:14px 16px;
+}
+.meal-time-col{min-width:72px;}
+.meal-time{font-family:var(--font-m);font-size:.62rem;color:var(--accent);letter-spacing:.08em;}
+.meal-emoji{font-size:1.4rem;margin-top:2px;}
+.meal-title{font-weight:700;font-size:.9rem;color:var(--ink);}
+.meal-desc{font-size:.8rem;color:var(--muted);margin-top:3px;line-height:1.5;}
+.meal-macros{
+  display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;
+}
+.macro-chip{
+  font-family:var(--font-m);font-size:.6rem;letter-spacing:.06em;
+  padding:2px 8px;border-radius:99px;background:var(--bg2);color:var(--muted);
+}
+.macro-chip.p{background:#e8f5e1;color:var(--accent);}
+.macro-chip.c{background:#fff3e0;color:#e65100;}
+.macro-chip.f{background:#e8eaf6;color:var(--accent3);}
+
+/* ANIMATIONS */
+@keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+footer{
+  text-align:center;font-family:var(--font-m);
+  font-size:.65rem;color:var(--muted);
+  padding-bottom:40px;letter-spacing:.1em;
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">🧬 Human Body Analyser</div>
+  <h1>Know Your <span>Body.</span><br>Own Your Health.</h1>
+  <p>Enter your details for a full personalised breakdown — from BMI to vitamins to your daily routine.</p>
+</div>
+
+<div class="form-wrap">
+  <div class="form-card">
+    <h2>Your Profile</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Age (years)</label>
+        <input type="number" id="age" placeholder="25" min="10" max="100"/>
+      </div>
+      <div class="field">
+        <label>Gender</label>
+        <div class="radio-group">
+          <div class="radio-btn active" id="genderM" onclick="setGender('M')">♂ Male</div>
+          <div class="radio-btn" id="genderF" onclick="setGender('F')">♀ Female</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Height (cm)</label>
+        <input type="number" id="height" placeholder="170" min="100" max="250"/>
+      </div>
+      <div class="field">
+        <label>Weight (kg)</label>
+        <input type="number" id="weight" placeholder="70" min="30" max="300"/>
+      </div>
+      <div class="field">
+        <label>Activity Level</label>
+        <select id="activity">
+          <option value="1.2">Sedentary (desk job, no exercise)</option>
+          <option value="1.375">Lightly Active (1–3 days/week)</option>
+          <option value="1.55" selected>Moderately Active (3–5 days/week)</option>
+          <option value="1.725">Very Active (6–7 days/week)</option>
+          <option value="1.9">Athlete (2× daily training)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Goal</label>
+        <select id="goal">
+          <option value="lose">Lose Weight</option>
+          <option value="maintain" selected>Maintain Weight</option>
+          <option value="gain">Gain Muscle</option>
+        </select>
+      </div>
+    </div>
+    <button class="analyze-btn" onclick="analyse()">🔬 Analyse My Body</button>
+  </div>
+</div>
+
+<div class="results" id="results">
+
+  <div class="results-header">
+    <h2>Your Body Report</h2>
+    <div class="score-pill">
+      <div class="score-circle" id="scoreCircle">—</div>
+      <div class="score-label" id="scoreLabel">Health Score</div>
+    </div>
+  </div>
+
+  <!-- METRIC CARDS -->
+  <div class="metric-grid" id="metricGrid"></div>
+
+  <!-- VITAMINS -->
+  <div class="wide-card">
+    <h3><span class="dot"></span> Essential Daily Vitamins & Minerals</h3>
+    <div class="vit-grid" id="vitGrid"></div>
+  </div>
+
+  <!-- PROTEIN FOOD GUIDE -->
+  <div class="wide-card">
+    <h3><span class="dot" style="background:var(--accent)"></span> Protein-Rich Foods Guide</h3>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('animal')">🥩 Animal</button>
+      <button class="tab-btn" onclick="switchTab('plant')">🌿 Plant-Based</button>
+      <button class="tab-btn" onclick="switchTab('dairy')">🥛 Dairy & Eggs</button>
+      <button class="tab-btn" onclick="switchTab('snacks')">🥜 Snacks</button>
+    </div>
+    <div class="tab-panel active" id="tab-animal"><div class="food-grid" id="food-animal"></div></div>
+    <div class="tab-panel" id="tab-plant"><div class="food-grid" id="food-plant"></div></div>
+    <div class="tab-panel" id="tab-dairy"><div class="food-grid" id="food-dairy"></div></div>
+    <div class="tab-panel" id="tab-snacks"><div class="food-grid" id="food-snacks"></div></div>
+  </div>
+
+  <!-- VITAMIN FOOD SOURCES -->
+  <div class="wide-card">
+    <h3><span class="dot" style="background:#f57c00"></span> How to Get Your Vitamins & Minerals from Food</h3>
+    <div class="vit-src-grid" id="vitSrcGrid"></div>
+  </div>
+
+  <!-- SAMPLE MEAL PLAN -->
+  <div class="wide-card">
+    <h3><span class="dot" style="background:#0288d1"></span> Sample Daily Meal Plan</h3>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px;">Personalised to your calorie & protein targets.</p>
+    <div class="meal-day" id="mealPlan"></div>
+  </div>
+
+  <!-- TWO COL: Protein + Water detail -->
+  <div class="two-col">
+    <div class="wide-card" style="margin-bottom:0">
+      <h3><span class="dot" style="background:var(--accent3)"></span> Protein Breakdown</h3>
+      <div id="proteinDetail"></div>
+    </div>
+    <div class="wide-card" style="margin-bottom:0">
+      <h3><span class="dot" style="background:#0288d1"></span> Hydration Guide</h3>
+      <div id="waterDetail"></div>
+    </div>
+  </div>
+
+  <!-- DAILY ROUTINE -->
+  <div class="wide-card" style="margin-top:20px">
+    <h3><span class="dot" style="background:#f57c00"></span> Ideal Daily Routine</h3>
+    <div class="routine-grid" id="routineGrid"></div>
+  </div>
+
+  <!-- PERSONALIZED TIPS -->
+  <div class="wide-card">
+    <h3><span class="dot" style="background:var(--accent2)"></span> Personalised Health Tips</h3>
+    <div class="tips-list" id="tipsList"></div>
+  </div>
+
+  <!-- SELF CARE CHECKLIST -->
+  <div class="wide-card">
+    <h3><span class="dot" style="background:#7b1fa2"></span> Daily Self-Care Checklist</h3>
+    <div class="care-list" id="careList"></div>
+    <div class="add-row">
+      <input class="add-input" id="newCare" placeholder="Add your own habit…" maxlength="50" onkeydown="if(event.key==='Enter')addCare()"/>
+      <button class="add-btn" onclick="addCare()">+</button>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>today's habits</span><span id="progressTxt">0 / 0</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="mood-msg" id="moodMsg"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>BodyOS · for informational purposes only · always consult a healthcare professional</footer>
+
+<script>
+let gender = 'M';
+function setGender(g){
+  gender = g;
+  document.getElementById('genderM').classList.toggle('active', g==='M');
+  document.getElementById('genderF').classList.toggle('active', g==='F');
+}
+
+function analyse(){
+  const age    = parseFloat(document.getElementById('age').value)||25;
+  const height = parseFloat(document.getElementById('height').value)||170;
+  const weight = parseFloat(document.getElementById('weight').value)||70;
+  const act    = parseFloat(document.getElementById('activity').value)||1.55;
+  const goal   = document.getElementById('goal').value;
+
+  // --- CALCULATIONS ---
+  const bmi = weight / ((height/100)**2);
+  const bmiStatus = bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obese';
+  const bmiBadge   = bmi<18.5?'badge-warn':bmi<25?'badge-good':bmi<30?'badge-warn':'badge-warn';
+
+  // Ideal weight (Devine formula)
+  const idealW = gender==='M'
+    ? 50 + 2.3 * ((height/2.54) - 60)
+    : 45.5 + 2.3 * ((height/2.54) - 60);
+  const idealWkg = Math.max(40, idealW * 0.453592);
+
+  // BMR (Mifflin-St Jeor)
+  const bmr = gender==='M'
+    ? 10*weight + 6.25*height - 5*age + 5
+    : 10*weight + 6.25*height - 5*age - 161;
+
+  // TDEE
+  let tdee = bmr * act;
+  let goalCals = tdee;
+  let goalLabel = 'Maintenance';
+  if(goal==='lose'){goalCals = tdee - 500; goalLabel='Weight Loss';}
+  if(goal==='gain'){goalCals = tdee + 300; goalLabel='Muscle Gain';}
+
+  // Body fat (US Navy estimate — simplified)
+  const bf = gender==='M'
+    ? Math.max(5, (1.20 * bmi) + (0.23 * age) - 16.2)
+    : Math.max(10, (1.20 * bmi) + (0.23 * age) - 5.4);
+  const bfBadge = gender==='M'
+    ? (bf<6?'badge-warn':bf<24?'badge-good':'badge-warn')
+    : (bf<14?'badge-warn':bf<32?'badge-good':'badge-warn');
+
+  // Water (ml)
+  const water = Math.round(weight * 35);
+
+  // Protein
+  const proteinPerKg = goal==='gain'?2.0:goal==='lose'?1.8:1.6;
+  const protein = Math.round(weight * proteinPerKg);
+
+  // Carbs & Fat
+  const fatCals   = goalCals * 0.25;
+  const protCals  = protein * 4;
+  const carbCals  = goalCals - fatCals - protCals;
+  const carbs     = Math.round(Math.max(0, carbCals) / 4);
+  const fat       = Math.round(fatCals / 9);
+
+  // Sleep
+  const sleep = age<18?9:age<65?8:7;
+
+  // Health score
+  const bmiScore  = bmi>=18.5&&bmi<25?30:(bmi>=25&&bmi<30?18:8);
+  const bfScore   = (gender==='M'?(bf>=6&&bf<24):(bf>=14&&bf<32))?20:10;
+  const actScore  = act>=1.55?25:act>=1.375?15:8;
+  const healthScore = Math.min(99, bmiScore+bfScore+actScore+24);
+
+  // --- RENDER METRICS ---
+  const metrics = [
+    {icon:'⚖️', name:'BMI', val:bmi.toFixed(1), unit:'', sub:bmiStatus, badge:bmiBadge,
+     bar: Math.min(100, (bmi/40)*100), barColor:'var(--accent)'},
+    {icon:'🎯', name:'Ideal Weight', val:idealWkg.toFixed(1), unit:'kg',
+     sub:`Current: ${weight}kg`, badge:'badge-info', bar:Math.min(100,(weight/idealWkg)*100), barColor:'var(--accent3)'},
+    {icon:'🔥', name:'Daily Calories', val:Math.round(goalCals), unit:'kcal',
+     sub:goalLabel, badge:'badge-good', bar:Math.min(100,(goalCals/3000)*100), barColor:'#e65100'},
+    {icon:'💪', name:'Daily Protein', val:protein, unit:'g',
+     sub:`${proteinPerKg}g per kg · Goal-adjusted`, badge:'badge-info', bar:Math.min(100,(protein/200)*100), barColor:'var(--accent3)'},
+    {icon:'💧', name:'Daily Water', val:(water/1000).toFixed(1), unit:'L',
+     sub:`${water}ml · ${Math.round(water/250)} glasses`, badge:'badge-good', bar:Math.min(100,(water/3000)*100), barColor:'#0288d1'},
+    {icon:'🫀', name:'Body Fat', val:bf.toFixed(1), unit:'%',
+     sub:(gender==='M'?'Men: 6–24% normal':'Women: 14–32% normal'), badge:bfBadge,
+     bar:Math.min(100,(bf/50)*100), barColor:'var(--accent2)'},
+    {icon:'⚡', name:'Base Metabolic Rate', val:Math.round(bmr), unit:'kcal/day',
+     sub:'Calories at complete rest', badge:'badge-ok', bar:Math.min(100,(bmr/2500)*100), barColor:'#7b1fa2'},
+    {icon:'🌙', name:'Sleep Target', val:sleep, unit:'hrs/night',
+     sub:'Optimal for your age', badge:'badge-good', bar:(sleep/10)*100, barColor:'var(--accent)'},
+    {icon:'🍞', name:'Daily Carbs', val:carbs, unit:'g',
+     sub:`${Math.round((carbCals/goalCals)*100)}% of total calories`, badge:'badge-info', bar:Math.min(100,(carbs/350)*100), barColor:'#f57c00'},
+  ];
+
+  document.getElementById('metricGrid').innerHTML = metrics.map(m=>`
+    <div class="metric-card">
+      <div class="metric-icon">${m.icon}</div>
+      <div class="metric-name">${m.name}</div>
+      <div class="metric-val">${m.val} <span class="metric-unit">${m.unit}</span></div>
+      <div class="metric-sub">${m.sub}</div>
+      <span class="metric-badge ${m.badge}">${m.badge.replace('badge-','').toUpperCase()}</span>
+      <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="background:${m.barColor};width:${m.bar}%"></div></div></div>
+    </div>
+  `).join('');
+
+  // health score
+  document.getElementById('scoreCircle').textContent = healthScore;
+  document.getElementById('scoreLabel').textContent =
+    healthScore>=80?'Excellent 🌟':healthScore>=65?'Good 👍':healthScore>=50?'Fair ⚡':'Needs Work 💪';
+
+  // --- VITAMINS ---
+  const vits = [
+    {name:'Vitamin A',dose:gender==='M'?'900 mcg':'700 mcg',role:'Vision, immune system'},
+    {name:'Vitamin B12',dose:'2.4 mcg',role:'Nerve function, red blood cells'},
+    {name:'Vitamin C',dose:gender==='M'?'90 mg':'75 mg',role:'Antioxidant, collagen synthesis'},
+    {name:'Vitamin D',dose:'600–800 IU',role:'Bone health, immunity'},
+    {name:'Vitamin E',dose:'15 mg',role:'Antioxidant, skin health'},
+    {name:'Vitamin K',dose:gender==='M'?'120 mcg':'90 mcg',role:'Blood clotting, bones'},
+    {name:'Folate (B9)',dose:'400 mcg',role:'Cell growth, DNA repair'},
+    {name:'Iron',dose:gender==='M'?'8 mg':'18 mg',role:'Oxygen transport'},
+    {name:'Calcium',dose:age>50?'1200 mg':'1000 mg',role:'Bone & muscle health'},
+    {name:'Magnesium',dose:gender==='M'?'420 mg':'320 mg',role:'Muscle, nerve, energy'},
+    {name:'Zinc',dose:gender==='M'?'11 mg':'8 mg',role:'Immune function, healing'},
+    {name:'Omega-3',dose:'250–500 mg EPA+DHA',role:'Heart, brain, inflammation'},
+  ];
+  document.getElementById('vitGrid').innerHTML = vits.map(v=>`
+    <div class="vit-item">
+      <div class="vit-name">${v.name}</div>
+      <div class="vit-dose">${v.dose}</div>
+      <div class="vit-role">${v.role}</div>
+    </div>
+  `).join('');
+
+  // --- PROTEIN DETAIL ---
+  document.getElementById('proteinDetail').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:.88rem;">
+      <div style="background:var(--bg);border-radius:12px;padding:12px 14px;">
+        <div style="font-family:var(--font-m);font-size:.6rem;color:var(--muted);margin-bottom:4px;letter-spacing:.1em;text-transform:uppercase">Daily Target</div>
+        <strong style="font-size:1.3rem;font-family:var(--font-h)">${protein}g</strong> total protein
+      </div>
+      <div style="background:var(--bg);border-radius:12px;padding:12px 14px;">
+        <div style="font-family:var(--font-m);font-size:.6rem;color:var(--muted);margin-bottom:4px;letter-spacing:.1em;text-transform:uppercase">Per Meal (3 meals)</div>
+        <strong>${Math.round(protein/3)}g</strong> per sitting
+      </div>
+      <div style="background:var(--bg);border-radius:12px;padding:12px 14px;">
+        <div style="font-family:var(--font-m);font-size:.6rem;color:var(--muted);margin-bottom:4px;letter-spacing:.1em;text-transform:uppercase">Best Sources</div>
+        Chicken, eggs, fish, lentils, Greek yogurt, tofu
+      </div>
+      <div style="background:var(--bg);border-radius:12px;padding:12px 14px;">
+        <div style="font-family:var(--font-m);font-size:.6rem;color:var(--muted);margin-bottom:4px;letter-spacing:.1em;text-transform:uppercase">Ratio used</div>
+        ${proteinPerKg}g × ${weight}kg body weight
+      </div>
+    </div>
+  `;
+
+  // --- WATER DETAIL ---
+  const glasses = Math.round(water/250);
+  document.getElementById('waterDetail').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:.88rem;">
+      <div style="background:var(--bg);border-radius:12px;padding:12px 14px;">
+        <div style="font-family:var(--font-m);font-size:.6rem;color:var(--muted);margin-bottom:4px;letter-spacing:.1em;text-transform:uppercase">Daily Target</div>
+        <strong style="font-size:1.3rem;font-family:var(--font-h)">${(water/1000).toFixed(1)}L</strong> · ${glasses} glasses
+      </div>
+      <div style="background:var(--bg);border-radius:12px;padding:12px 14px;">
+        <div style="font-family:var(--font-m);font-size:.6rem;color:var(--muted);margin-bottom:4px;letter-spacing:.1em;text-transform:uppercase">Morning</div>
+        500ml upon waking (before coffee)
+      </div>
+      <div style="background:var(--bg);border-radius:12px;padding:12px 14px;">
+        <div style="font-family:var(--font-m);font-size:.6rem;color:var(--muted);margin-bottom:4px;letter-spacing:.1em;text-transform:uppercase">During Exercise</div>
+        +500ml per 1 hour of activity
+      </div>
+      <div style="background:var(--bg);border-radius:12px;padding:12px 14px;">
+        <div style="font-family:var(--font-m);font-size:.6rem;color:var(--muted);margin-bottom:4px;letter-spacing:.1em;text-transform:uppercase">Formula used</div>
+        35ml × ${weight}kg body weight
+      </div>
+    </div>
+  `;
+
+  // --- ROUTINE ---
+  const routine = [
+    {time:'6:00 AM', icon:'🌅', text:'Wake & Hydrate', sub:'500ml water + 5 min sunlight'},
+    {time:'6:15 AM', icon:'🧘', text:'Morning Stretch / Yoga', sub:'10–15 min mobility work'},
+    {time:'7:00 AM', icon:'🍳', text:'Protein-rich Breakfast', sub:`${Math.round(protein*0.25)}g protein goal`},
+    {time:'8:00 AM', icon:'🏋️', text:'Exercise Window', sub:act>=1.55?'Strength or cardio 45–60min':'Light walk 20–30min'},
+    {time:'10:00 AM', icon:'💧', text:'Mid-morning Water', sub:'250ml — stay ahead of thirst'},
+    {time:'12:30 PM', icon:'🥗', text:'Balanced Lunch', sub:'Complex carbs + protein + greens'},
+    {time:'3:00 PM', icon:'🍎', text:'Afternoon Snack', sub:'Fruit + nuts or Greek yogurt'},
+    {time:'3:30 PM', icon:'☀️', text:'Sunlight Break', sub:'10 min outside for Vitamin D'},
+    {time:'6:30 PM', icon:'🍽️', text:'Light Dinner', sub:`${Math.round(protein*0.3)}g protein, early as possible`},
+    {time:'8:00 PM', icon:'📵', text:'Screen Wind-down', sub:'Dim lights, blue light off'},
+    {time:'9:00 PM', icon:'📖', text:'Evening Wind-down', sub:'Read, journal, or meditate'},
+    {time:`${22-Math.round((sleep-7)/2)}:00 PM`, icon:'😴', text:'Lights Out', sub:`${sleep}hrs target for recovery`},
+  ];
+
+  document.getElementById('routineGrid').innerHTML = routine.map(r=>`
+    <div class="routine-item">
+      <div>
+        <div class="routine-time">${r.time}</div>
+        <div style="font-size:1.3rem;margin-top:4px">${r.icon}</div>
+      </div>
+      <div>
+        <div class="routine-text">${r.text}</div>
+        <div class="routine-sub">${r.sub}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // --- TIPS ---
+  const tips = [];
+
+  if(bmi>=25) tips.push({icon:'⚖️', text:`<strong>Weight management:</strong> Your BMI of ${bmi.toFixed(1)} is in the ${bmiStatus} range. Aim for a 300–500 kcal daily deficit through diet and exercise. Focus on whole foods and avoid ultra-processed items.`});
+  if(bmi<18.5) tips.push({icon:'🥩', text:`<strong>Build healthy mass:</strong> At BMI ${bmi.toFixed(1)} you're underweight. Eat calorie-dense foods — nuts, avocados, oats, eggs — and incorporate strength training 3× a week.`});
+  if(bf>=25&&gender==='M') tips.push({icon:'🏃', text:`<strong>Reduce body fat:</strong> At ${bf.toFixed(1)}% body fat, adding 20–30 min of daily cardio and reducing refined sugars will make a significant difference within 8–12 weeks.`});
+  if(act<=1.375) tips.push({icon:'🚶', text:`<strong>Move more:</strong> Low activity detected. Even a 30-minute brisk walk daily can improve cardiovascular health, mood, and metabolic rate significantly.`});
+  tips.push({icon:'😴', text:`<strong>Prioritise sleep:</strong> Aim for ${sleep} hours every night. Poor sleep increases cortisol, suppresses muscle repair, and disrupts hunger hormones (ghrelin & leptin).`});
+  tips.push({icon:'🧠', text:`<strong>Mind your stress:</strong> Chronic stress raises cortisol, which promotes fat storage especially around the belly. Try 5–10 minutes of mindfulness or box breathing daily.`});
+  tips.push({icon:'☀️', text:`<strong>Vitamin D daily:</strong> Most people are deficient. Get 10–20 minutes of direct sunlight on your skin, or supplement with 1000–2000 IU D3 especially in winter.`});
+  tips.push({icon:'💪', text:`<strong>Protein timing:</strong> Distribute your ${protein}g of protein across 3–4 meals. Eating 25–40g per sitting maximises muscle protein synthesis.`});
+  tips.push({icon:'🫁', text:`<strong>Deep breathing:</strong> Practice diaphragmatic breathing for 5 minutes daily. It activates the parasympathetic nervous system and reduces blood pressure.`});
+  if(age>=40) tips.push({icon:'🩺', text:`<strong>Annual health checks:</strong> At ${age}, schedule yearly blood panels — lipids, blood glucose, thyroid, vitamin levels. Prevention is far more powerful than treatment.`});
+
+  document.getElementById('tipsList').innerHTML = tips.map(t=>`
+    <div class="tip-item">
+      <div class="tip-icon">${t.icon}</div>
+      <div class="tip-text">${t.text}</div>
+    </div>
+  `).join('');
+
+  // --- PROTEIN FOOD GUIDE ---
+  const foodData = {
+    animal:[
+      {icon:'🍗',name:'Chicken Breast',macro:'31g / 100g',note:'Lean, versatile, low fat'},
+      {icon:'🐟',name:'Tuna (canned)',macro:'25g / 100g',note:'Affordable, Omega-3 rich'},
+      {icon:'🥩',name:'Lean Beef',macro:'26g / 100g',note:'Iron + B12 + creatine'},
+      {icon:'🐟',name:'Salmon',macro:'20g / 100g',note:'Omega-3 + Vitamin D'},
+      {icon:'🍤',name:'Shrimp',macro:'24g / 100g',note:'Very low calorie, high protein'},
+      {icon:'🦃',name:'Turkey',macro:'29g / 100g',note:'Low fat, rich in selenium'},
+    ],
+    plant:[
+      {icon:'🫘',name:'Lentils',macro:'9g / 100g cooked',note:'Fibre + folate + iron'},
+      {icon:'🫘',name:'Chickpeas',macro:'8g / 100g cooked',note:'Versatile, gut-friendly'},
+      {icon:'🌱',name:'Edamame',macro:'11g / 100g',note:'Complete protein, easy snack'},
+      {icon:'🟤',name:'Tempeh',macro:'19g / 100g',note:'Fermented soy, probiotics'},
+      {icon:'⬜',name:'Tofu (firm)',macro:'17g / 100g',note:'Absorbs flavours well'},
+      {icon:'🌾',name:'Quinoa',macro:'4g / 100g cooked',note:'Complete amino acid profile'},
+    ],
+    dairy:[
+      {icon:'🥚',name:'Whole Eggs',macro:'13g / 2 eggs',note:'Most bioavailable protein'},
+      {icon:'🫙',name:'Greek Yogurt',macro:'10g / 100g',note:'Probiotics + calcium'},
+      {icon:'🧀',name:'Cottage Cheese',macro:'11g / 100g',note:'Casein protein — slow release'},
+      {icon:'🥛',name:'Milk (whole)',macro:'3.4g / 100ml',note:'Calcium + Vitamin D'},
+      {icon:'🧀',name:'Parmesan',macro:'35g / 100g',note:'Highest protein cheese'},
+      {icon:'🍦',name:'Whey Protein',macro:'25g / scoop',note:'Fast-absorbing post-workout'},
+    ],
+    snacks:[
+      {icon:'🥜',name:'Peanut Butter',macro:'7g / 2 tbsp',note:'Healthy fats + protein'},
+      {icon:'🌰',name:'Almonds',macro:'6g / 30g',note:'Vitamin E + magnesium'},
+      {icon:'🫘',name:'Pumpkin Seeds',macro:'9g / 30g',note:'Zinc + magnesium rich'},
+      {icon:'🟤',name:'Peanuts',macro:'7g / 30g',note:'Most protein-dense nut'},
+      {icon:'🫙',name:'Hummus',macro:'5g / 100g',note:'Chickpeas + tahini'},
+      {icon:'🥣',name:'Oats',macro:'5g / 40g dry',note:'Beta-glucan + slow energy'},
+    ],
+  };
+  Object.entries(foodData).forEach(([cat, foods])=>{
+    document.getElementById('food-'+cat).innerHTML = foods.map(f=>`
+      <div class="food-card">
+        <div class="food-icon">${f.icon}</div>
+        <div class="food-name">${f.name}</div>
+        <div class="food-macro">${f.macro} protein</div>
+        <div class="food-note">${f.note}</div>
+      </div>
+    `).join('');
+  });
+
+  // --- VITAMIN FOOD SOURCES ---
+  const vitSources = [
+    {icon:'🟠',name:'Vitamin A',dose:gender==='M'?'900 mcg':'700 mcg',
+     foods:'<strong>Carrots</strong>, sweet potato, spinach, kale, liver, eggs',
+     tip:'Cook with fat to boost absorption (it\'s fat-soluble)'},
+    {icon:'🔵',name:'Vitamin B12',dose:'2.4 mcg',
+     foods:'<strong>Meat, fish, dairy</strong>, eggs, fortified cereals',
+     tip:'Vegans must supplement — B12 is almost absent in plants'},
+    {icon:'🟡',name:'Vitamin C',dose:gender==='M'?'90 mg':'75 mg',
+     foods:'<strong>Bell peppers</strong>, strawberries, kiwi, broccoli, oranges',
+     tip:'Eat raw when possible — heat degrades Vitamin C'},
+    {icon:'☀️',name:'Vitamin D',dose:'600–800 IU',
+     foods:'<strong>Sunlight</strong>, salmon, egg yolk, fortified milk, sardines',
+     tip:'10–20 min sun daily on skin is the most efficient source'},
+    {icon:'🌾',name:'Vitamin E',dose:'15 mg',
+     foods:'<strong>Sunflower seeds</strong>, almonds, wheat germ oil, spinach, avocado',
+     tip:'Paired with Vitamin C, they act as powerful antioxidants'},
+    {icon:'🥦',name:'Vitamin K',dose:gender==='M'?'120 mcg':'90 mcg',
+     foods:'<strong>Kale</strong>, spinach, broccoli, Brussels sprouts, fermented foods',
+     tip:'Fat-soluble — eat with olive oil or avocado'},
+    {icon:'🫘',name:'Folate (B9)',dose:'400 mcg',
+     foods:'<strong>Lentils</strong>, asparagus, spinach, black beans, fortified bread',
+     tip:'Critical during pregnancy — take a supplement if planning'},
+    {icon:'🩸',name:'Iron',dose:gender==='M'?'8 mg':'18 mg',
+     foods:'<strong>Lean red meat</strong>, spinach, lentils, pumpkin seeds, tofu',
+     tip:'Pair with Vitamin C to double iron absorption from plant foods'},
+    {icon:'🦴',name:'Calcium',dose:age>50?'1200 mg':'1000 mg',
+     foods:'<strong>Dairy</strong>, sardines with bones, tofu, broccoli, almonds',
+     tip:'Space intake across the day — body absorbs max ~500mg at once'},
+    {icon:'⚡',name:'Magnesium',dose:gender==='M'?'420 mg':'320 mg',
+     foods:'<strong>Dark chocolate</strong>, pumpkin seeds, spinach, almonds, avocado',
+     tip:'Most people are deficient — a major factor in poor sleep & cramps'},
+    {icon:'🛡️',name:'Zinc',dose:gender==='M'?'11 mg':'8 mg',
+     foods:'<strong>Oysters</strong>, beef, pumpkin seeds, chickpeas, cashews',
+     tip:'Depleted by stress and exercise — athletes need more'},
+    {icon:'🐟',name:'Omega-3',dose:'250–500 mg EPA+DHA',
+     foods:'<strong>Fatty fish</strong> (salmon, mackerel, sardines), flaxseed, walnuts, chia',
+     tip:'Aim for 2 fatty fish servings per week or supplement daily'},
+  ];
+  document.getElementById('vitSrcGrid').innerHTML = vitSources.map(v=>`
+    <div class="vit-src-card">
+      <div class="vit-src-header">
+        <span style="font-size:1.3rem">${v.icon}</span>
+        <div>
+          <div class="vit-src-name">${v.name}</div>
+          <div class="vit-src-dose">${v.dose} / day</div>
+        </div>
+      </div>
+      <div class="vit-src-foods">${v.foods}</div>
+      <div class="vit-src-tip">💡 ${v.tip}</div>
+    </div>
+  `).join('');
+
+  // --- MEAL PLAN ---
+  const pB = Math.round(protein*0.25);
+  const pL = Math.round(protein*0.30);
+  const pD = Math.round(protein*0.30);
+  const pS = protein - pB - pL - pD;
+  const calB = Math.round(goalCals*0.25);
+  const calL = Math.round(goalCals*0.35);
+  const calD = Math.round(goalCals*0.30);
+  const calS = goalCals - calB - calL - calD;
+
+  const meals = [
+    {time:'7:00 AM',emoji:'🍳',title:'Breakfast',
+     desc: goal==='gain'
+       ? `3 scrambled eggs + 2 slices whole grain toast + 1 banana + 1 glass milk`
+       : `2-egg omelette with spinach & feta + 1 slice rye toast + black coffee`,
+     p:pB, c:Math.round(carbs*0.25), f:Math.round(fat*0.25), cal:calB},
+    {time:'10:30 AM',emoji:'🥜',title:'Morning Snack',
+     desc:`Greek yogurt (150g) + a handful of almonds + 1 kiwi`,
+     p:pS, c:Math.round(carbs*0.15), f:Math.round(fat*0.15), cal:calS},
+    {time:'1:00 PM',emoji:'🥗',title:'Lunch',
+     desc: goal==='lose'
+       ? `Grilled chicken breast (150g) + large green salad + quinoa (½ cup) + olive oil dressing`
+       : `Rice bowl with ${goal==='gain'?'200g':'150g'} salmon, roasted broccoli, avocado & soy dressing`,
+     p:pL, c:Math.round(carbs*0.35), f:Math.round(fat*0.30), cal:calL},
+    {time:'4:00 PM',emoji:'🍎',title:'Afternoon Snack',
+     desc:`Apple + 2 tbsp peanut butter or cottage cheese (100g) + cucumber sticks`,
+     p:Math.round(pS*0.8), c:Math.round(carbs*0.10), f:Math.round(fat*0.10), cal:Math.round(calS*0.8)},
+    {time:'7:00 PM',emoji:'🍽️',title:'Dinner',
+     desc: goal==='lose'
+       ? `Baked fish (150g) or lentil soup + steamed vegetables + small sweet potato`
+       : `Lean beef stir-fry (${goal==='gain'?'200g':'150g'}) with mixed vegetables + brown rice (1 cup)`,
+     p:pD, c:Math.round(carbs*0.25), f:Math.round(fat*0.25), cal:calD},
+  ];
+
+  document.getElementById('mealPlan').innerHTML = meals.map(m=>`
+    <div class="meal-slot">
+      <div class="meal-time-col">
+        <div class="meal-time">${m.time}</div>
+        <div class="meal-emoji">${m.emoji}</div>
+      </div>
+      <div style="flex:1">
+        <div class="meal-title">${m.title}</div>
+        <div class="meal-desc">${m.desc}</div>
+        <div class="meal-macros">
+          <span class="macro-chip p">~${m.p}g protein</span>
+          <span class="macro-chip c">~${m.c}g carbs</span>
+          <span class="macro-chip f">~${m.f}g fat</span>
+          <span class="macro-chip">~${m.cal} kcal</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  
+  const defaultCare = [
+    {emoji:'💧',text:`Drink ${(water/1000).toFixed(1)}L of water today`,done:false},
+    {emoji:'🥗',text:`Hit ${protein}g protein in meals`,done:false},
+    {emoji:'🏃',text:'Complete today\'s exercise',done:false},
+    {emoji:'🌅',text:'Get morning sunlight (10 min)',done:false},
+    {emoji:'🧘',text:'5 min breathing / meditation',done:false},
+    {emoji:'📵',text:'No screens 1hr before bed',done:false},
+    {emoji:'😴',text:`Sleep ${sleep} hours tonight`,done:false},
+    {emoji:'🥦',text:'Eat at least 3 servings of vegetables',done:false},
+    {emoji:'📓',text:'Write one grateful thought',done:false},
+  ];
+  careItems = JSON.parse(localStorage.getItem('bodyos_care')||'null')||defaultCare;
+  renderCare();
+
+  // SHOW RESULTS
+  const resEl = document.getElementById('results');
+  resEl.style.display='block';
+  resEl.classList.add('show');
+  setTimeout(()=>resEl.scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+// --- TAB SWITCHER ---
+function switchTab(cat){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+cat).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// --- CARE LIST ---
+let careItems = [];
+const moodMsgs = [[0,"Start ticking — you've got this! 🌱"],[25,"Warming up nicely ✨"],[50,"Halfway to a great day 💪"],[75,"Almost there — finish strong 🌟"],[100,"You showed up for yourself today 🥹"]];
+function getMood(p){let m=moodMsgs[0][1];for(const[t,s]of moodMsgs){if(p>=t)m=s;}return m;}
+function saveCare(){localStorage.setItem('bodyos_care',JSON.stringify(careItems));}
+function renderCare(){
+  const el=document.getElementById('careList');
+  el.innerHTML='';
+  careItems.forEach((item,i)=>{
+    const d=document.createElement('div');
+    d.className='care-item'+(item.done?' done':'');
+    d.innerHTML=`<div class="care-check">${item.done?'✓':''}</div><span class="care-emoji">${item.emoji}</span><span class="care-text">${item.text}</span>`;
+    d.onclick=()=>toggleCare(i,d);
+    el.appendChild(d);
+  });
+  updateProgress();
+}
+function toggleCare(i,el){
+  careItems[i].done=!careItems[i].done;
+  el.classList.toggle('done');
+  el.querySelector('.care-check').textContent=careItems[i].done?'✓':'';
+  saveCare();updateProgress();
+}
+function updateProgress(){
+  const done=careItems.filter(i=>i.done).length;
+  const total=careItems.length;
+  const pct=total?Math.round((done/total)*100):0;
+  document.getElementById('progressTxt').textContent=`${done} / ${total}`;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('moodMsg').textContent=total?getMood(pct):'';
+}
+const emojis=['🌿','⭐','🍃','✦','🫧','🌙','☀️','🪴','🎯','🧬'];
+function addCare(){
+  const inp=document.getElementById('newCare');
+  const v=inp.value.trim();if(!v)return;
+  careItems.push({emoji:emojis[Math.floor(Math.random()*emojis.length)],text:v,done:false});
+  inp.value='';saveCare();renderCare();
+}
+</script>
+</body>
+</html>
